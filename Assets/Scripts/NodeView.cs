@@ -37,6 +37,25 @@ public class NodeView : MonoBehaviour
         }
     }
 
+    void ColorArrow ( Color color,GameObject go )
+    {
+        if ( go != null )
+        {
+            Renderer goRenderer = go.GetComponent<Renderer>();
+
+            if ( goRenderer != null )
+            {
+                goRenderer.material.color = color;
+            }
+        }
+    }
+
+
+    public void ColorArrow(Color color)
+    {
+        ColorArrow(color, arrow);
+    }
+
     public void ColorNode ( Color color )
     {
         ColorNode(color, tile);

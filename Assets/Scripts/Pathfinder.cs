@@ -18,6 +18,7 @@ public class Pathfinder : MonoBehaviour
     public Color frontierColor = Color.magenta;
     public Color exploredColor = Color.gray;
     public Color pathColor = Color.cyan;
+    public Color pathArrowColor = Color.yellow;
 
     public void Init ( Graph graph, GraphView graphView, Node startNode, Node endNode )
     {
@@ -68,6 +69,11 @@ public class Pathfinder : MonoBehaviour
 
             Node currentNode = m_frontierNodes.Dequeue();
 
+            if ( currentNode == m_endNode )
+            {
+                m_pathNodes = GetPath(currentNode);
+            }
+
             foreach ( var node in currentNode.neighbors )
             {
                 if ( !m_frontierNodes.Contains(node) && !m_exploredNodes.Contains(node) )
@@ -79,9 +85,10 @@ public class Pathfinder : MonoBehaviour
 
             m_exploredNodes.Add(currentNode);
 
-            ShowColors();
 
             m_graphView.nodeViews[currentNode.xIndex, currentNode.yIndex].SetArrow();
+
+            ShowColors();
 
             yield return new WaitForSeconds(timeStep);
 
@@ -92,26 +99,59 @@ public class Pathfinder : MonoBehaviour
 
     private void ShowColors ()
     {
-        if ( m_exploredNodes != null && m_exploredNodes.Count > 0 )
+        foreach ( var node in m_graph.nodes )
         {
-            foreach ( Node node in m_exploredNodes )
+            if ( node == m_endNode )
             {
-                if ( node != m_startNode && node != m_endNode )
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(endColor);
+
+                // Path has found
+                if ( m_pathNodes.Contains(node) )
                 {
-                    m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(exploredColor);
+                    m_graphView.nodeViews[node.xIndex, node.yIndex].ColorArrow(pathArrowColor);
                 }
             }
+
+            else if ( node == m_startNode )
+            {
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(startColor);
+            }
+
+            else if ( m_pathNodes.Contains(node) )
+            {
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(pathColor);
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorArrow(pathArrowColor);
+            }
+
+            else if ( m_frontierNodes.Contains(node) )
+            {
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(frontierColor);
+            }
+
+            else if ( m_exploredNodes.Contains(node) )
+            {
+                m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(exploredColor);
+            }
+        }
+    }
+
+    private List<Node> GetPath ( Node endNode )
+    {
+        List<Node> path = new List<Node>();
+        if ( endNode == null )
+        {
+            return path;
         }
 
-        if ( m_frontierNodes != null && m_frontierNodes.Count > 0 )
+
+        Node currentNode = endNode;
+
+        while ( currentNode.previous != null )
         {
-            foreach ( Node node in m_frontierNodes )
-            {
-                if ( node != m_startNode && node != m_endNode )
-                {
-                    m_graphView.nodeViews[node.xIndex, node.yIndex].ColorNode(frontierColor);
-                }
-            }
+            path.Add(currentNode);
+            currentNode = currentNode.previous;
         }
+
+        return path;
     }
 }

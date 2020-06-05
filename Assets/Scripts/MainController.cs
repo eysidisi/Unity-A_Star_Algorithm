@@ -17,6 +17,8 @@ public class MainController : MonoBehaviour
     public int endX = 0;
     public int endY = 2;
 
+    public float searcRoutineTimeStep = 0.5f;
+
     void Start ()
     {
         if ( graph != null && mapData != null && pathfinder != null )
@@ -38,7 +40,7 @@ public class MainController : MonoBehaviour
                 pathfinder.Init(graph, graphView, graph.nodes[startX, startY],
                      graph.nodes[endX, endY]);
 
-                StartCoroutine(pathfinder.SearchRoutine());
+                StartCoroutine(pathfinder.SearchRoutine(searcRoutineTimeStep));
             }
             else
             {
